@@ -1,0 +1,36 @@
+import pygame
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 800
+PADDING = 20
+
+ROWS = 4
+COLUMNS = 4
+
+FIELD_WIDTH = SCREEN_WIDTH // ROWS
+FIELD_HEIGHT = SCREEN_HEIGHT // COLUMNS
+
+OUTLINE_COLOR = (187, 173, 160)
+OUTLINE_THICKNESS = 15
+BACKGROUND_COLOR = (205, 190, 180)
+
+pygame.font.init()
+FONT = pygame.font.Font("fonts\\clear-sans\\ClearSans-Bold.ttf", 75)
+FONT_COLOR = (120, 110, 100)
+
+KEY_WAIT_TIME = 400
+
+MOVE_VEL = 40
+NEXT_NUMBERS_COLORS = [
+    (237, 229, 218),
+    (238, 225, 201),
+    (243, 178, 122),
+    (246, 150, 101),
+    (247, 124, 95),
+    (247, 95, 59),
+    (237, 208, 115),
+    (237, 204, 99),
+    (236, 202, 80),
+]
+
+VALUES_COLORS = [(140, 137, 132), (134, 119, 95), "WHITE"]
