@@ -1,5 +1,6 @@
 from settings import *
 from timer import Timer
+from button import Button
 from random import randrange, choice
 import math
 
@@ -14,14 +15,36 @@ class Game:
         self.surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.display_surface = pygame.display.get_surface()
 
+        # game status
+        self.finished = False
+        self.won = False
+
         # tiles
         self.tiles = {
             pos: Tile(2, pos) for pos in [self.get_random_pos() for _ in range(2)]
         }
 
+        # "try again" button
+        self.try_again_img = pygame.image.load("tryagain.jpg")
+        self.try_again_bttn = Button(
+            pos=(SCREEN_WIDTH//2, SCREEN_HEIGHT*0.6),
+            image=self.try_again_img,
+            text="TRY AGAIN"
+        )
+        self.bttn_txt_surface = BUTTON_FONT.render(
+                self.try_again_bttn.text,
+                True,
+                TEXT_COLOR
+            )
+        self.bttn_txt_rect = self.bttn_txt_surface.get_rect(center=self.try_again_bttn.pos)
+
         # timer
         self.key_timer = Timer(KEY_WAIT_TIME)
-        self.delay_timer = Timer(100)
+        self.mouse_timer = Timer(MOUSE_WAIT_TIME)
+
+    # mouse
+    def get_mouse_pos(self):
+        self.mouse_pos = pygame.mouse.get_pos()
 
     # draw things
     def draw_grid(self):
@@ -55,6 +78,41 @@ class Game:
     def draw_fields(self):
         for tile in self.tiles.values():
             tile.draw(self.surface)
+
+    def draw_end(self):
+
+        # menu
+        pygame.draw.rect(
+            self.surface,
+            BACKGROUND_COLOR,
+            (SCREEN_WIDTH//8, SCREEN_HEIGHT//5, SCREEN_WIDTH*0.75, SCREEN_HEIGHT*0.6)
+        )
+        pygame.draw.rect(
+            self.surface,
+            OUTLINE_COLOR,
+            (SCREEN_WIDTH//8, SCREEN_HEIGHT//5, SCREEN_WIDTH*0.75, SCREEN_HEIGHT*0.6),
+            OUTLINE_THICKNESS
+        )
+
+        # text
+        if self.won:
+            message = "Congratulations!"
+        else: message = "YOU LOST!"
+
+        text = MENU_FONT.render(message, 1, TEXT_COLOR)
+        text_rect = text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT*0.4))
+        self.surface.blit(text, text_rect)
+
+        # button + text
+        self.surface.blit(
+            self.try_again_bttn.image,
+            self.try_again_bttn.rect
+            )
+        
+        self.surface.blit(
+            self.bttn_txt_surface,
+            self.bttn_txt_rect
+            )
 
     # tiles
     def get_random_pos(self):
@@ -141,7 +199,6 @@ class Game:
         sorted_tiles = sorted(self.tiles.values(), key=self.sort_func, reverse=self.reverse)
 
         while updated:
-            self.delay_timer.activate()
             updated = False
 
             for indx, tile in enumerate(sorted_tiles):
@@ -175,10 +232,17 @@ class Game:
 
         self.end_move()
 
-    # finalizowanie
     def end_move(self):
+        # check loss and win
         if len(self.tiles) == 16:
+            self.finished = True
             return "lost"
+        
+        for tile in self.tiles.values():
+            if tile.value == 2048:
+                self.finished = True
+                self.won = True
+                return "lost"
 
         pos = self.get_random_pos()
         self.tiles[pos] = Tile(choice([2, 4]), pos)
@@ -194,26 +258,34 @@ class Game:
 
     # keys
     def check_keys(self):
-        keys = pygame.key.get_pressed()
+        if not self.finished:
+            keys = pygame.key.get_pressed()
 
-        if not self.key_timer.active:
-            if keys[pygame.K_LEFT]:
-                self.set_credentials("left")
-                self.key_timer.activate()
-            elif keys[pygame.K_RIGHT]:
-                self.set_credentials("right")
-                self.key_timer.activate()
-            elif keys[pygame.K_UP]:
-                self.set_credentials("up")
-                self.key_timer.activate()
-            elif keys[pygame.K_DOWN]:
-                self.set_credentials("down")
-                self.key_timer.activate()
+            if not self.key_timer.active:
+                if keys[pygame.K_LEFT]:
+                    self.set_credentials("left")
+                    self.key_timer.activate()
+                elif keys[pygame.K_RIGHT]:
+                    self.set_credentials("right")
+                    self.key_timer.activate()
+                elif keys[pygame.K_UP]:
+                    self.set_credentials("up")
+                    self.key_timer.activate()
+                elif keys[pygame.K_DOWN]:
+                    self.set_credentials("down")
+                    self.key_timer.activate()
+
+    def check_endbutton(self):
+        if not self.mouse_timer.active:
+
+            if self.try_again_bttn.clicked(self.mouse_pos):
+                print("TRY AGAIN!!!")
+                self.mouse_timer.activate()
 
     # run Forest, run!
     def run(self):
 
-        # timer
+        # some
         self.key_timer.update()
 
         # thing
@@ -225,6 +297,17 @@ class Game:
         # draw
         self.draw_fields()
         self.draw_grid()
+
+        # end
+        if self.finished:
+            self.draw_end()
+            self.get_mouse_pos()
+            self.mouse_timer.update()
+            self.check_endbutton()
+        self.draw_end()
+        self.get_mouse_pos()
+        self.mouse_timer.update()
+        self.check_endbutton()
         self.display_surface.blit(self.surface, (0, 0))
 
 
@@ -253,7 +336,7 @@ class Tile:
         pygame.draw.rect(surface, tile_color, (self.x, self.y, FIELD_WIDTH, FIELD_HEIGHT))
 
         # draw value
-        text = FONT.render(f"{self.value}", 1, value_color)
+        text = GAME_FONT.render(f"{self.value}", 1, value_color)
         surface.blit(
             text,
             (

@@ -15,10 +15,13 @@ OUTLINE_THICKNESS = 15
 BACKGROUND_COLOR = (205, 190, 180)
 
 pygame.font.init()
-FONT = pygame.font.Font("fonts\\clear-sans\\ClearSans-Bold.ttf", 75)
+GAME_FONT = pygame.font.Font("ClearSans-Bold.ttf", 75)
+MENU_FONT = pygame.font.Font("ClearSans-Bold.ttf", 60)
+BUTTON_FONT = pygame.font.Font("ClearSans-Bold.ttf", 35)
 FONT_COLOR = (120, 110, 100)
 
 KEY_WAIT_TIME = 400
+MOUSE_WAIT_TIME = 300
 
 MOVE_VEL = 40
 NEXT_NUMBERS_COLORS = [
@@ -32,5 +35,5 @@ NEXT_NUMBERS_COLORS = [
     (237, 204, 99),
     (236, 202, 80),
 ]
-
+TEXT_COLOR = NEXT_NUMBERS_COLORS[0]
 VALUES_COLORS = [(140, 137, 132), (134, 119, 95), "WHITE"]

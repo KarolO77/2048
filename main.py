@@ -1,6 +1,5 @@
 from settings import *
 from game import Game
-import os
 
 class Main:
     def __init__(self):
