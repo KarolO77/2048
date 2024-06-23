@@ -89,7 +89,7 @@ class Game:
         )
         pygame.draw.rect(
             self.surface,
-            OUTLINE_COLOR,
+            END_OUTLINE_COLOR,
             (SCREEN_WIDTH//8, SCREEN_HEIGHT//5, SCREEN_WIDTH*0.75, SCREEN_HEIGHT*0.6),
             OUTLINE_THICKNESS
         )
@@ -277,9 +277,16 @@ class Game:
 
     def check_endbutton(self):
         if not self.mouse_timer.active:
-
+            
+            # restart game
             if self.try_again_bttn.clicked(self.mouse_pos):
-                print("TRY AGAIN!!!")
+                self.tiles.clear()
+                self.tiles = {
+                    pos: Tile(2, pos) for pos in [self.get_random_pos() for _ in range(2)]
+                }
+
+                self.won = False
+                self.finished = False
                 self.mouse_timer.activate()
 
     # run Forest, run!
@@ -304,10 +311,6 @@ class Game:
             self.get_mouse_pos()
             self.mouse_timer.update()
             self.check_endbutton()
-        self.draw_end()
-        self.get_mouse_pos()
-        self.mouse_timer.update()
-        self.check_endbutton()
         self.display_surface.blit(self.surface, (0, 0))
 
 
